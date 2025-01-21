@@ -40,6 +40,8 @@ public:
             m_connectedPlayers[i].first = ctx.createObject();
             m_connectedPlayers[i].second = ctx.createObject();
         }
+        m_startButtonObjId = ctx.createObject();
+        m_startButtonTextId = ctx.createObject();
     }
 
     virtual ~LobbyState() {}
@@ -94,10 +96,17 @@ public:
     virtual void deactivate() override
     {
         m_active = false;
+        m_startable = false;
+        m_connectCount = 0;
         for(int i = 0; i < 3; i++)
         {
             ctx.removeAttribute(m_connectedPlayers[i].first, ATMA::AttributeType(ATMA::Attribute::Render));
             ctx.removeAttribute(m_connectedPlayers[i].second, ATMA::AttributeType(ATMA::Attribute::Text));
+        }
+        if(ctx.hasAttribute(m_startButtonObjId, ATMA::AttributeType(ATMA::Attribute::Render)))
+        {
+            ctx.removeAttribute(m_startButtonObjId, ATMA::AttributeType(ATMA::Attribute::Render));
+            ctx.removeAttribute(m_startButtonTextId, ATMA::AttributeType(ATMA::Attribute::Text));
         }
     }
 
@@ -116,9 +125,11 @@ public:
                     {
                     case -1:
                         m_connectedPlayersObjs[i].second->m_self->m_text = "OtherPlayer";
+                        m_connectCount++;
                         break;
                     case 1:
                         m_connectedPlayersObjs[i].second->m_self->m_text = "You";
+                        m_connectCount++;
                         break;
                     }
                 }
@@ -128,11 +139,36 @@ public:
             {
                 while(!m_active){}
                 m_connectedPlayersObjs[l_e.values().getAs<short>("port")].second->m_self->m_text = "OtherPlayer";
+                m_connectCount++;
                 break;
             }
         default:
             break;
         }
+        if(m_connectCount == 2)
+        {
+            ctx.addAttribute(m_startButtonObjId, ATMA::AttributeType(ATMA::Attribute::Render));
+            ctx.addAttribute(m_startButtonTextId, ATMA::AttributeType(ATMA::Attribute::Text));
+            auto startRender = ctx.getAttribute<ATMA::AttrRenderable>(
+                m_startButtonObjId, ATMA::AttributeType(ATMA::Attribute::Render)
+            );
+            startRender->m_self->m_prog = m_defaultProg;
+            startRender->m_self->m_texture = m_unselectedTexture;
+            startRender->m_self->m_stackPos = 0;
+            startRender->m_self->m_pos = ATMA::Vec2{150.f, 100.f};
+            startRender->m_self->m_size = ATMA::Vec2{90.f, 45.f};
+            auto startText = ctx.getAttribute<ATMA::AttrText>(
+                m_startButtonTextId, ATMA::AttributeType(ATMA::Attribute::Text)
+            );
+            startText->m_self->m_prog = m_defaultProg;
+            startText->m_self->m_texture = m_font;
+            startText->m_self->m_stackPos = 1;
+            startText->m_self->m_pos = ATMA::Vec2{150.f, 100.f};
+            startText->m_self->m_size = ATMA::Vec2{8.f, 14.f};
+            startText->m_self->m_text = "Start";
+            m_startable = true;
+        }
+
 
     }
 
@@ -152,6 +188,21 @@ public:
      */
     virtual void handleInput(const ATMA::WindowEvent &l_winEvent)
     {
+        if(!m_active)
+            return;
+        switch(l_winEvent.m_type)
+        {
+        case ATMA::WindowEventEnum::KeyDowned:
+            int keyindex = l_winEvent.getProp<int>("keycode"s);
+            ATMA::KeyEnum keycode = ATMA::KeyEnum(keyindex);
+            ATMA_ENGINE_INFO("key pressed with code {}", keyindex);
+            switch(keycode)
+            {
+            case ATMA::KeyEnum::RETURN:
+                if(m_startable)
+                    ctx.switchToState(GameStateType(GameStateEnum::PLAYSTATE));
+            }
+        }
         return;
     }
 protected:
@@ -160,5 +211,9 @@ protected:
     std::shared_ptr<ATMA::GLTexture> m_font;
     std::shared_ptr<ATMA::GLTexture> m_unselectedTexture;
     std::pair<unsigned int, unsigned int> m_connectedPlayers[2]{};
+    unsigned int m_startButtonObjId;
+    unsigned int m_startButtonTextId;
+    std::atomic<short> m_connectCount = 0;
+    std::atomic<bool> m_startable = false;
     std::pair<std::shared_ptr<ATMA::AttrRenderable>, std::shared_ptr<ATMA::AttrText>> m_connectedPlayersObjs[2]{};
 };

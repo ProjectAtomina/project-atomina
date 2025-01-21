@@ -57,7 +57,9 @@ namespace ATMA
         DISCONNECT,
         PORT_REQUEST,
         PORT_JOIN,
-        PORT_RESPONSE
+        PORT_RESPONSE,
+        STATE_CHANGE,
+        COUNT
     };
 
     /**

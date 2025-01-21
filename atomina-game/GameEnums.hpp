@@ -41,6 +41,13 @@ enum class GameAttributeEnum
     CONNECTION,
 };
 
+enum class GameNetMessageEnum
+{
+    COUNT = static_cast<unsigned int>(ATMA::NetworkMessageEnum::COUNT),
+    PLAYER_CHOICE
+
+};
+
 /**
  * wrapper class for State Enum that allows for implicit
  * coversion to unsigned int

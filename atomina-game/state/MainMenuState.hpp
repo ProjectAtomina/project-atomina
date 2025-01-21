@@ -137,7 +137,6 @@ public:
                 switch(keycode)
                 {
                 case ATMA::KeyEnum::DOWN:
-                    ATMA_ENGINE_INFO("performing down event");
                     m_menuObjs[m_selected].first->m_self->m_texture = m_unselectedTexture;
                     if(m_selected == 0)
                     {
