@@ -1,4 +1,5 @@
-﻿#include "NetworkMessageTestSuite.hpp"
+﻿
+#include "NetworkMessageTestSuite.hpp"
 
 using namespace std::string_literals;
 

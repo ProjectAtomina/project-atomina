@@ -22,7 +22,23 @@ public:
     * @param l_dt the time since last update
     */
     virtual void update(const long long &l_dt) override
-    {}
+    {
+        auto &ctx = ATMA::ATMAContext::getContext();
+        for(auto &idPair : m_conns)
+        {
+            auto connAttr = ctx.getAttribute<AttrConnection>(idPair.second, GameAttributeType(GameAttributeEnum::CONNECTION));
+            std::lock_guard<std::mutex> lock{connAttr->m_msgMutex};
+            ATMA_ENGINE_TRACE("There are {} message waiting for conn", connAttr->m_msgs.size());
+            for(auto &msg: connAttr->m_msgs)
+            {
+                ATMA::Props p = msg.values();
+                p["connId"] = idPair.first;
+                p["msgType"] = msg.type();
+                ATMA::ObjectEventContext e{ATMA::ObjectEventType(ATMA::ObjectEvent::Network), p};
+                ctx.dispatchObjectEvent(e);
+            }
+        }
+    }
 
     /**
     * event callback function where the system will changes

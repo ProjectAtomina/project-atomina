@@ -15,7 +15,8 @@ void ServerApp::setup(ATMA::ATMAContext &l_ctx)
     l_ctx.addSystemType<SysConnection>(GameSystemType(GameSystemEnum::CONNECTION));
     auto netSys = l_ctx.getSystem<SysConnection>(GameSystemType(GameSystemEnum::CONNECTION));
     l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::CONNECTION_STARTED), netSys);
-    l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::PORT_REQUEST), netSys);
+    l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::PORT_REQUEST), netSys); 
+    l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::STATE_CHANGE), netSys);
     l_ctx.netManager.startHosting(4734);
 }
 
@@ -74,6 +75,19 @@ void ServerApp::update(ATMA::ATMAContext &l_ctx)
                     ctx.netManager.sendMessage(
                         resp, connId.first
                     );
+                }
+                break;
+            case ATMA::NetworkMessageEnum::STATE_CHANGE:
+                {
+                    ATMA::Props p{
+                        {{"state",
+                          std::pair<unsigned char, std::any>{
+                              ATMA::NetworkMessageValueType(ATMA::NetworkMessageValueEnum::UNSIGNEDINT),
+                              msg.values().getAs<unsigned int>("state")
+                          }}}
+                    };
+                    ATMA::NetworkMessage nm{ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::STATE_CHANGE), p};
+                    ctx.netManager.broadcastMessage(nm);
                 }
                 break;
             default:

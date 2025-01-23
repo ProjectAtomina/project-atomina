@@ -9,7 +9,7 @@ using namespace std::string_literals;
  * Game Implementation of state to implement a user defined extended state
  * that is external to the engine
  */
-class LobbyState: public ATMA::BaseState, public ATMA::NetworkMessageListener
+class LobbyState: public ATMA::BaseState, public ATMA::ObjectEventListener
 {
 public:
     ATMA::ATMAContext &ctx = ATMA::ATMAContext::getContext();
@@ -85,7 +85,7 @@ public:
         m_connectedPlayersObjs[1].second->m_self->m_size = ATMA::Vec2{8.f, 14.f};
         for(int i = 0; i < 2; i++)
         {
-                m_connectedPlayersObjs[i].second->m_self->m_text = "Waiting...";
+            m_connectedPlayersObjs[i].second->m_self->m_text = "Waiting...";
         }
         m_active = true;
     }
@@ -100,8 +100,11 @@ public:
         m_connectCount = 0;
         for(int i = 0; i < 3; i++)
         {
-            ctx.removeAttribute(m_connectedPlayers[i].first, ATMA::AttributeType(ATMA::Attribute::Render));
-            ctx.removeAttribute(m_connectedPlayers[i].second, ATMA::AttributeType(ATMA::Attribute::Text));
+            if(ctx.hasAttribute(m_connectedPlayers[i].first, ATMA::AttributeType(ATMA::Attribute::Render)))
+            {
+                ctx.removeAttribute(m_connectedPlayers[i].first, ATMA::AttributeType(ATMA::Attribute::Render));
+                ctx.removeAttribute(m_connectedPlayers[i].second, ATMA::AttributeType(ATMA::Attribute::Text));
+            }
         }
         if(ctx.hasAttribute(m_startButtonObjId, ATMA::AttributeType(ATMA::Attribute::Render)))
         {
@@ -110,18 +113,21 @@ public:
         }
     }
 
-    virtual void notify(const std::optional<const unsigned int> &l_id, const ATMA::NetworkMessage &l_e) override 
+    virtual void notify(const ATMA::ObjectEventContext &l_e) override
     {
-
+        if(l_e.m_objectEventType != ATMA::ObjectEventType(ATMA::ObjectEvent::Network))
+            return;
         auto &ctx = ATMA::ATMAContext::getContext();
-        switch(l_e.type())
+        switch(l_e.m_properties.getAs<unsigned int>("msgType"))
         {
         case static_cast<unsigned int>(ATMA::NetworkMessageEnum::PORT_RESPONSE):
             {
-                while(!m_active){}
+                while(!m_active)
+                {
+                }
                 for(int i = 0; i < 2; i++)
                 {
-                    switch(l_e.values().getAs<short>("port"+std::to_string(i)))
+                    switch(l_e.m_properties.getAs<short>("port" + std::to_string(i)))
                     {
                     case -1:
                         m_connectedPlayersObjs[i].second->m_self->m_text = "OtherPlayer";
@@ -137,11 +143,18 @@ public:
             }
         case static_cast<unsigned int>(ATMA::NetworkMessageEnum::PORT_JOIN):
             {
-                while(!m_active){}
-                m_connectedPlayersObjs[l_e.values().getAs<short>("port")].second->m_self->m_text = "OtherPlayer";
+                while(!m_active)
+                {
+                }
+                m_connectedPlayersObjs[l_e.m_properties.getAs<short>("port")].second->m_self->m_text = "OtherPlayer";
                 m_connectCount++;
                 break;
             }
+        case static_cast<unsigned int>(ATMA::NetworkMessageEnum::STATE_CHANGE):
+            {
+                ctx.switchToState(GameStateType(GameStateEnum::PLAYSTATE));
+            }
+            break;
         default:
             break;
         }
@@ -157,9 +170,8 @@ public:
             startRender->m_self->m_stackPos = 0;
             startRender->m_self->m_pos = ATMA::Vec2{150.f, 100.f};
             startRender->m_self->m_size = ATMA::Vec2{90.f, 45.f};
-            auto startText = ctx.getAttribute<ATMA::AttrText>(
-                m_startButtonTextId, ATMA::AttributeType(ATMA::Attribute::Text)
-            );
+            auto startText =
+                ctx.getAttribute<ATMA::AttrText>(m_startButtonTextId, ATMA::AttributeType(ATMA::Attribute::Text));
             startText->m_self->m_prog = m_defaultProg;
             startText->m_self->m_texture = m_font;
             startText->m_self->m_stackPos = 1;
@@ -168,8 +180,6 @@ public:
             startText->m_self->m_text = "Start";
             m_startable = true;
         }
-
-
     }
 
     /**
@@ -200,7 +210,17 @@ public:
             {
             case ATMA::KeyEnum::RETURN:
                 if(m_startable)
-                    ctx.switchToState(GameStateType(GameStateEnum::PLAYSTATE));
+                {
+                    ATMA::Props p{
+                        {{"state",
+                          std::pair<unsigned char, std::any>{
+                              ATMA::NetworkMessageValueType(ATMA::NetworkMessageValueEnum::UNSIGNEDINT),
+                              unsigned int(GameStateType(GameStateEnum::PLAYSTATE))
+                          }}}
+                    };
+                    ATMA::NetworkMessage nm{ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::STATE_CHANGE), p};
+                    ctx.netManager.sendMessage(nm);
+                }
             }
         }
         return;

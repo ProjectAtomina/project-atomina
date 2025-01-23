@@ -152,6 +152,7 @@ namespace ATMA
         std::vector<unsigned char> msg = NetworkSerde::serialize(l_msg);
         for(auto &conn: *m_connections)
         {
+            ATMA_ENGINE_TRACE("Send message type {} to conn id {}", l_msg.type(), conn.first);
             conn.second->second->send(l_msg);
         }
     }

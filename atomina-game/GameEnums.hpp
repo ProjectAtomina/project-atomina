@@ -137,3 +137,26 @@ public:
 private:
     const GameAttributeEnum m_type;
 };
+
+
+/**
+ * wrapper class for State Enum that allows for implicit
+ * coversion to unsigned int
+ */
+class GameNetMessageType
+{
+public:
+    // normal constructor
+    GameNetMessageType(const GameNetMessageEnum &l_type): m_type(l_type) {}
+
+    // conversion constructor
+    GameNetMessageType(const unsigned int &l_int): m_type(static_cast<GameNetMessageEnum>(l_int)) {}
+
+    // conversion operator
+    operator unsigned int()
+    {
+        return static_cast<unsigned int>(m_type);
+    }
+private:
+    const GameNetMessageEnum m_type;
+};
