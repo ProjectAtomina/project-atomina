@@ -215,7 +215,7 @@ public:
                         {{"state",
                           std::pair<unsigned char, std::any>{
                               ATMA::NetworkMessageValueType(ATMA::NetworkMessageValueEnum::UNSIGNEDINT),
-                              unsigned int(GameStateType(GameStateEnum::PLAYSTATE))
+                              (unsigned int)(GameStateType(GameStateEnum::PLAYSTATE))
                           }}}
                     };
                     ATMA::NetworkMessage nm{ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::STATE_CHANGE), p};

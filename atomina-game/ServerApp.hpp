@@ -11,8 +11,7 @@
 class ServerApp: public ATMA::Server
 {
 protected:
-    static const int MAX_PORTS = 2;
-    std::vector<std::optional<unsigned int>> m_ports{};
+
 
 public:
     // default constructor
