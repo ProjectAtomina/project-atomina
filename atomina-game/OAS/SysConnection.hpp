@@ -30,7 +30,7 @@ public:
             std::lock_guard<std::mutex> lock{connAttr->m_msgMutex};
             for(auto &msg: connAttr->m_msgs)
             {
-                ATMA_ENGINE_
+                ATMA_ENGINE_TRACE("Sending out object network message type {}", msg.type());
                 ATMA::Props p = msg.values();
                 p["connId"] = idPair.first;
                 p["msgType"] = msg.type();

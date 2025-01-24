@@ -4,6 +4,7 @@
 
 class ServerState: public ATMA::BaseState, public ATMA::ObjectEventListener
 {
+public:
     ATMA::ATMAContext &ctx = ATMA::ATMAContext::getContext();
 
     ServerState(): BaseState() {}
@@ -27,8 +28,11 @@ class ServerState: public ATMA::BaseState, public ATMA::ObjectEventListener
     {
         if(l_e.m_objectEventType != ATMA::ObjectEventType(ATMA::ObjectEvent::Network))
             return;
+        ATMA_ENGINE_TRACE("handling event in server state");
         unsigned int msgType = l_e.m_properties.getAs<unsigned int>("msgType");
-        unsigned int connId = l_e.m_properties.getAs<unsigned int>("connId");
+        ATMA_ENGINE_TRACE("getting conn id from object event message");
+        std::optional<unsigned int> connId = l_e.m_properties.getAs<std::optional<unsigned int>>("connId");
+        ATMA_ENGINE_TRACE("got conn id from object message");
         switch(msgType)
         {
         case static_cast<unsigned int>(ATMA::NetworkMessageEnum::PORT_REQUEST):

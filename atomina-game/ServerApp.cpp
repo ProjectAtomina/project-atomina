@@ -2,6 +2,7 @@
 #    include "ServerApp.hpp"
 #    include "OAS/AttrConnection.hpp"
 #    include "OAS/SysConnection.hpp"
+#    include "state/ServerState.hpp"
 
 ServerApp::ServerApp() {}
 
@@ -17,6 +18,9 @@ void ServerApp::setup(ATMA::ATMAContext &l_ctx)
     l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::CONNECTION_STARTED), netSys);
     l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::PORT_REQUEST), netSys);
     l_ctx.netManager.addMessageListener(ATMA::NetworkMessageType(ATMA::NetworkMessageEnum::STATE_CHANGE), netSys);
+    std::shared_ptr<ServerState> server = std::make_shared<ServerState>();
+    l_ctx.addObjectEventListener(ATMA::ObjectEventType(ATMA::ObjectEvent::Network), server);
+    l_ctx.addState(GameStateType(GameStateEnum::PLAYSTATE), server);
     l_ctx.netManager.startHosting(4734);
 }
 
