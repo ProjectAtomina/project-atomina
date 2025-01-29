@@ -1,6 +1,30 @@
 #include "ResourceTestSuite.hpp"
 #include <gtest/gtest.h>
 
+// Two-channel sawtooth wave generator.
+int saw( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
+         double streamTime, RtAudioStreamStatus status, void *userData )
+{
+  unsigned int i, j;
+  double *buffer = (double *) outputBuffer;
+  double *lastValues = (double *) userData;
+ 
+  if ( status )
+    std::cout << "Stream underflow detected!" << std::endl;
+ 
+  // Write interleaved audio data.
+  for ( i=0; i<nBufferFrames; i++ ) {
+    for ( j=0; j<2; j++ ) {
+      *buffer++ = lastValues[j];
+ 
+      lastValues[j] += 0.005 * (j+1+(j*0.1));
+      if ( lastValues[j] >= 1.0 ) lastValues[j] -= 2.0;
+    }
+  }
+ 
+  return 0;
+}
+
 TYPED_TEST_SUITE(ResourceFixture, ResourceTypes);
 
 /**
@@ -101,4 +125,29 @@ TEST_F(UnTypedResourceFixture, LoadWaveform)
     auto id = ctx.registerResource("testWave", 0u, std::optional<std::string>{"res/flick.wav"});
     auto res = ctx.loadResource<ATMA::AudioWave>(id);
     EXPECT_NE(res,nullptr);
+    RtAudio dac;
+    std::vector<unsigned int> deviceIds = dac.getDeviceIds();
+    if ( deviceIds.size() < 1 ) 
+    {
+        ATMA_ENGINE_ERROR("no devices found");
+        ADD_FAILURE();
+    }
+ 
+    RtAudio::StreamParameters params;
+    params.deviceId = dac.getDefaultOutputDevice();
+    params.nChannels = res->m_wave.m_channels;
+    params.firstChannel = 0;
+    if(dac.openStream(&params, nullptr, RTAUDIO_SINT16, res->m_wave.m_sampleRate, res->m_wave.m_data, &saw))
+    {
+        ATMA_ENGINE_ERROR("failed to open stream");
+        ADD_FAILURE();
+    }
+
+    // Stream is open ... now start it.
+    if ( dac.startStream() ) 
+    {
+        ATMA_ENGINE_ERROR("failed to start stream: {}",  dac.getErrorText());
+        ADD_FAILURE();
+    }
+
 }

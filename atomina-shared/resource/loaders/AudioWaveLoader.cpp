@@ -60,11 +60,22 @@ namespace ATMA
                 buffer.begin() + 40 + sizeof(unsigned short),
                 reinterpret_cast<unsigned char *>(&dataSize)
             );
-            std::vector<unsigned char> data{};
+            std::vector<unsigned int> data{};
             data.reserve(dataSize);
-            for(int i = 0; i < dataSize; i++)
+            for(int i = 1; i <= dataSize; i++)
             {
-                data.emplace_back(buffer[i+44]);
+                if(i%8 == 0)
+                {
+                    ATMA_ENGINE_TRACE("Copying {} bytes to audio buffer", (i - (i-8)));
+                    unsigned int slice;
+                    std::copy(
+                        buffer.begin() + 40 + i - 8,
+                        buffer.begin() + 40 + i,
+                        reinterpret_cast<unsigned char *>(&slice)
+                    );
+                    data.emplace_back(slice);
+                }
+                
             }
             ATMA_ENGINE_INFO("loading .wav formatChunkSize={} format={} channels={} sampleRate={} sampleSize={} dataSize={}", formatChunkSize, format, channels, sampleRate, sampleSize, dataSize);
             Wave w{l_name, l_path, channels, sampleRate, sampleSize, data.data(), dataSize};

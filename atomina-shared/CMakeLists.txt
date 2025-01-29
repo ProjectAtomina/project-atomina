@@ -25,10 +25,10 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 if(ATMA_APP_TYPE STREQUAL "OpenGL")
     list(FILTER atomina_shared_src EXCLUDE REGEX ".*/renderImpl/Dummy/.*")
-    target_link_libraries(Atomina_Shared PUBLIC spdlog::spdlog GLEW::GLEW glfw)
+    target_link_libraries(Atomina_Shared PUBLIC spdlog::spdlog GLEW::GLEW glfw RtAudio::rtaudio)
 else()
     list(FILTER atomina_shared_src EXCLUDE REGEX ".*/renderImpl/OpenGL/.*")
-    target_link_libraries(Atomina_Shared PUBLIC spdlog::spdlog glfw)
+    target_link_libraries(Atomina_Shared PUBLIC spdlog::spdlog glfw RtAudio::rtaudio)
 endif()
 
 

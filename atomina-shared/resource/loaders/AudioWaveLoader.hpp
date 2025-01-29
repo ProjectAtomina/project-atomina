@@ -2,6 +2,7 @@
 #include "pch.hpp"
 #include "core/api.hpp"
 #include "resource/ResourceLoader.hpp"
+#include "util/Log.hpp"
 #include "sound/AudioWave.hpp"
 
 namespace ATMA

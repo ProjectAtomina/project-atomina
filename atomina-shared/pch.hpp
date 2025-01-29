@@ -68,3 +68,5 @@
 #    undef None // X11 defines None as a macro for 0L which can collide with enums
 #    undef Bool // another macro from X11 that interferes with gtest
 #endif
+
+#include <rtaudio/RtAudio.h>

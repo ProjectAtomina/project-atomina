@@ -27,6 +27,17 @@
       "name": "glfw3",
       "version>=": "3.3.8",
       "default-features": true
+    },
+    {
+      "name": "rtaudio",
+      "version>=": "6.0.1",
+      "default-features": true
+    }
+  ],
+  "overrides": [
+    {
+      "name": "rtaudio",
+      "version": "6.0.1"
     }
   ]
 }

@@ -15,7 +15,7 @@ namespace ATMA{
     {
     public:
         //constructor specifing name, path, and source code
-        Wave(const std::string &l_name, const Path &l_path, const unsigned short &l_channels, const unsigned int &l_sampleRate, const size_t &l_sampleSize,  const unsigned char *l_data, const size_t &l_size):
+        Wave(const std::string &l_name, const Path &l_path, const unsigned short &l_channels, const unsigned int &l_sampleRate, const size_t &l_sampleSize, unsigned int *l_data, const size_t &l_size):
             Resource(l_name, l_path, ResType(ResourceEnum::Waveform)),
             m_channels(l_channels),
             m_sampleRate(l_sampleRate),
@@ -37,7 +37,7 @@ namespace ATMA{
         const unsigned short m_channels;
         const size_t m_sampleSize;
         const unsigned int m_sampleRate;
-        const unsigned char *m_data;
+        unsigned int *m_data;
         const size_t m_size;
     };
 
