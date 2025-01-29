@@ -18,6 +18,7 @@ namespace ATMA
 
     std::shared_ptr<GLTexture> ResourceLoader<GLTexture>::load(const std::string &l_name)
     {
-        throw ResourceAcquisitionException("Texture cannot be loaded without path");
+        Texture texture{l_name, ATMA::Path{""}, 0,0,0,0};
+        return GLTexture::makeTexture(texture);
     }
 }

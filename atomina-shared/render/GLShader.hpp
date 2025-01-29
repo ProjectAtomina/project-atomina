@@ -35,7 +35,6 @@ namespace ATMA
 
         //default constructor
         Shader(): Resource("", Path{""}, ResType(ResourceEnum::Shader)), m_source("") {}
-
         const std::string m_source;
     };
 
@@ -52,7 +51,7 @@ namespace ATMA
          * @brief compiles the shader source using GL context
          * @param l_type expected type of the shader being compiled
          */
-        virtual void compile(ShaderType l_type) = 0;
+        virtual void compile(const ShaderType &l_type) = 0;
 
         /**
          * @brief gets the reference id of the shader from the GL context

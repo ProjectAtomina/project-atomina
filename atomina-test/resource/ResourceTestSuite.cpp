@@ -94,3 +94,11 @@ TYPED_TEST(ResourceFixture, RemovingResourceUnloadsIt)
     ctx.removeResource(id);
     EXPECT_FALSE(ctx.hasLoadedResource(id));
 }
+
+TEST_F(UnTypedResourceFixture, LoadWaveform)
+{
+    auto &ctx = this->ctx;
+    auto id = ctx.registerResource("testWave", 0u, std::optional<std::string>{"res/flick.wav"});
+    auto res = ctx.loadResource<ATMA::AudioWave>(id);
+    EXPECT_NE(res,nullptr);
+}

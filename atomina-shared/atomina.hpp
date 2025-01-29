@@ -67,7 +67,9 @@
 #include "resource/ResourceLoader.hpp"
 #include "resource/ResourceEnum.hpp"
 #include "resource/DummyResource.hpp"
+#include "resource/loaders/AudioWaveLoader.hpp"
 #include "resource/loaders/GLTextureLoader.hpp"
+#include "resource/loaders/GLShaderLoader.hpp"
 #include "resource/loaders/DummyResourceLoader.hpp"
 
 #include "resource/graphics/AnimBase.hpp"
@@ -121,6 +123,8 @@
 #include "render/renderImpl/Dummy/GLSpriteDummyImpl.hpp"
 #include "render/renderImpl/OpenGL/GLRenderContextOpenGLImpl.hpp"
 
+//Sound
+#include "sound/AudioWave.hpp"
 
 #ifdef _WINDOWS
 //Network

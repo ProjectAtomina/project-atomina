@@ -15,6 +15,7 @@ namespace ATMA
         Texture = 1u,
         Font,
         Shader,
+        Waveform,
         COUNT
     };
 

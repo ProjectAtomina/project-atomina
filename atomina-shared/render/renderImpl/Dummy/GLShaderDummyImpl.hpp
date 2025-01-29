@@ -22,7 +22,7 @@ namespace ATMA
          * @brief compiles the source code in the specified filename
          * @param l_type expected type of shader to be compiled
          */
-        virtual void compile(ShaderType l_type) override;
+        virtual void compile(const ShaderType &l_type) override;
     protected:
         std::string m_shaderText;
     };

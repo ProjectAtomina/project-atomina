@@ -12,5 +12,5 @@ namespace ATMA
 
     GLShaderDummyImpl::~GLShaderDummyImpl() {}
 
-    void GLShaderDummyImpl::compile(ShaderType l_type) {}
+    void GLShaderDummyImpl::compile(const ShaderType &l_type) {}
 }

@@ -24,6 +24,7 @@ namespace ATMA
 
     std::shared_ptr<GLShader> ResourceLoader<GLShader>::load(const std::string &l_name)
     {
-        throw ResourceAcquisitionException("Shader cannot be loaded without path");
+        Shader shader{l_name, ATMA::Path{""}, ""};
+        return GLShader::makeShader(shader);
     }
 }
