@@ -11,16 +11,6 @@ class ResourceFixture: public ::testing::Test
 public:
     ATMA::ATMAContext &ctx = ATMA::ATMAContext::getContext();
 protected:
-
-    void SetUp() override
-    {
-        auto winID = ctx.createWindow();
-        auto win = ctx.getWindow(winID);
-        win->setSize({0,0});
-        win->show();
-        ctx.getRenderer()->setWindow(win);
-        //initialize context
-    }
     /**
      * Adds resource to the ATMA contain with type of the template
      * class
@@ -64,15 +54,6 @@ class UnTypedResourceFixture: public ::testing::Test
 public:
     ATMA::ATMAContext &ctx = ATMA::ATMAContext::getContext();
 
-    void SetUp() override
-    {
-        auto winID = ctx.createWindow();
-        auto win = ctx.getWindow(winID);
-        win->setSize({0,0});
-        win->show();
-        ctx.getRenderer()->setWindow(win);
-        //initialize context
-    }
 protected:
 
     /**

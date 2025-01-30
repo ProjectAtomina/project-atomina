@@ -7,7 +7,7 @@ int saw( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
          double streamTime, RtAudioStreamStatus status, void *userData )
 {
     static unsigned short count = 0;
-    if(count > 1)
+    if(count > 1) //needs to play twice because second time gets cut off
         return 1;
     auto &ctx = ATMA::ATMAContext::getContext();
     unsigned int *id = (unsigned int *) userData;
@@ -17,6 +17,7 @@ int saw( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
     if ( status )
         std::cout << "Stream underflow detected!" << std::endl;
  
+    ATMA_ENGINE_TRACE("buffer size is {} and wave form size is {} ", nBufferFrames, res->m_wave.m_data.size());
     // Write interleaved audio data.
     unsigned short *data = (unsigned short *)res->m_wave.m_data.data();
     for (unsigned int i = 0; i<nBufferFrames; i++ ) {
@@ -126,7 +127,7 @@ TYPED_TEST(ResourceFixture, RemovingResourceUnloadsIt)
 TEST_F(UnTypedResourceFixture, LoadWaveform)
 {
     auto &ctx = this->ctx;
-    auto id = ctx.registerResource("testWave", 0u, std::optional<std::string>{"res/flick.wav"});
+    auto id = ctx.registerResource("testWave", 0u, std::optional<std::string>{"res/test.wav"});
     auto res = ctx.loadResource<ATMA::AudioWave>(id);
     EXPECT_NE(res,nullptr);
     RtAudio dac;
@@ -141,7 +142,7 @@ TEST_F(UnTypedResourceFixture, LoadWaveform)
     params.deviceId = dac.getDefaultOutputDevice();
     params.nChannels = res->m_wave.m_channels;
     params.firstChannel = 0;
-    unsigned int bufferFrames = res->m_wave.m_data.size();
+    unsigned int bufferFrames = res->m_wave.m_data.size()/res->m_wave.m_channels/res->m_wave.m_sampleSize;
     unsigned int data = id;
     RtAudio::StreamOptions options;
     options.flags = RTAUDIO_NONINTERLEAVED;

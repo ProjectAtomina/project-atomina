@@ -68,7 +68,7 @@ namespace ATMA
                 data.emplace_back(buffer[44+i]);
             }
             ATMA_ENGINE_INFO("loaded .wav formatChunkSize={} format={} channels={} sampleRate={} sampleSize={} dataSize={}", formatChunkSize, format, channels, sampleRate, sampleSize, dataSize);
-            Wave w{l_name, l_path, channels, sampleRate, sampleSize, data};
+            Wave w{l_name, l_path, channels, sampleRate, sampleSize/size_t(8), data};
             return std::make_shared<AudioWave>(w);
         }
         return nullptr;
