@@ -15,13 +15,12 @@ namespace ATMA{
     {
     public:
         //constructor specifing name, path, and source code
-        Wave(const std::string &l_name, const Path &l_path, const unsigned short &l_channels, const unsigned int &l_sampleRate, const size_t &l_sampleSize, unsigned int *l_data, const size_t &l_size):
+        Wave(const std::string &l_name, const Path &l_path, const unsigned short &l_channels, const unsigned int &l_sampleRate, const size_t &l_sampleSize,const std::vector<unsigned char> &l_data):
             Resource(l_name, l_path, ResType(ResourceEnum::Waveform)),
             m_channels(l_channels),
             m_sampleRate(l_sampleRate),
             m_sampleSize(l_sampleSize),
-            m_data(l_data),
-            m_size(l_size)
+            m_data(l_data)
         {
         }
 
@@ -31,14 +30,12 @@ namespace ATMA{
         m_channels(0),
         m_sampleRate(0),
         m_sampleSize(0),
-        m_data(nullptr),
-        m_size(0)
+        m_data(std::vector<unsigned char>{})
         {}
         const unsigned short m_channels;
         const size_t m_sampleSize;
         const unsigned int m_sampleRate;
-        unsigned int *m_data;
-        const size_t m_size;
+        std::vector<unsigned char> m_data;
     };
 
     class AudioWave: public LoadedResource
