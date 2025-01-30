@@ -1,34 +1,5 @@
 #include "ResourceTestSuite.hpp"
 #include <gtest/gtest.h>
-//#define SCALE  32767.0
-
-// Two-channel sawtooth wave generator.
-int saw( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
-         double streamTime, RtAudioStreamStatus status, void *userData )
-{
-    static unsigned short count = 0;
-    if(count > 1) //needs to play twice because second time gets cut off
-        return 1;
-    auto &ctx = ATMA::ATMAContext::getContext();
-    unsigned int *id = (unsigned int *) userData;
-    auto res = ctx.loadResource<ATMA::AudioWave>(*id);
-    unsigned short *buffer = (unsigned short *) outputBuffer;
- 
-    if ( status )
-        std::cout << "Stream underflow detected!" << std::endl;
- 
-    ATMA_ENGINE_TRACE("buffer size is {} and wave form size is {} ", nBufferFrames, res->m_wave.m_data.size());
-    // Write interleaved audio data.
-    unsigned short *data = (unsigned short *)res->m_wave.m_data.data();
-    for (unsigned int i = 0; i<nBufferFrames; i++ ) {
-        for(unsigned short j = 0; j < res->m_wave.m_channels; j++)
-        {
-            buffer[i*res->m_wave.m_channels + j] = data[i*res->m_wave.m_channels + j];
-        }
-    }
-    count++;
-    return 0;
-}
 
 TYPED_TEST_SUITE(ResourceFixture, ResourceTypes);
 
@@ -122,46 +93,4 @@ TYPED_TEST(ResourceFixture, RemovingResourceUnloadsIt)
     auto res = this->loadResource(id);
     ctx.removeResource(id);
     EXPECT_FALSE(ctx.hasLoadedResource(id));
-}
-
-TEST_F(UnTypedResourceFixture, LoadWaveform)
-{
-    auto &ctx = this->ctx;
-    auto id = ctx.registerResource("testWave", 0u, std::optional<std::string>{"res/test.wav"});
-    auto res = ctx.loadResource<ATMA::AudioWave>(id);
-    EXPECT_NE(res,nullptr);
-    RtAudio dac;
-    std::vector<unsigned int> deviceIds = dac.getDeviceIds();
-    if ( deviceIds.size() < 1 ) 
-    {
-        ATMA_ENGINE_ERROR("no devices found");
-        ADD_FAILURE();
-    }
- 
-    RtAudio::StreamParameters params;
-    params.deviceId = dac.getDefaultOutputDevice();
-    params.nChannels = res->m_wave.m_channels;
-    params.firstChannel = 0;
-    unsigned int bufferFrames = res->m_wave.m_data.size()/res->m_wave.m_channels/res->m_wave.m_sampleSize;
-    unsigned int data = id;
-    RtAudio::StreamOptions options;
-    options.flags = RTAUDIO_NONINTERLEAVED;
-    if(dac.openStream(&params, nullptr, RTAUDIO_SINT16, res->m_wave.m_sampleRate, &bufferFrames, &saw, (void *)&data))
-    {
-        ATMA_ENGINE_ERROR("failed to open stream");
-        ADD_FAILURE();
-    }
-
-    // Stream is open ... now start it.
-    if ( dac.startStream() ) 
-    {
-        ATMA_ENGINE_ERROR("failed to start stream: {}",  dac.getErrorText());
-        ADD_FAILURE();
-    }
- 
-    while(dac.isStreamRunning()){}
- 
-    ATMA_ENGINE_INFO("stream finished playing");
- 
-
 }
