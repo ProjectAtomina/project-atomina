@@ -86,8 +86,10 @@ if(ATMA_APP_TYPE STREQUAL "OpenGL")
 	find_package(GLEW REQUIRED)
 endif()
 if(MSVC)
+	find_package(rtaudio CONFIG REQUIRED)
 	find_package(stb REQUIRED)
 elseif(UNIX) # for some reason stb using different casing on different OSes
+	find_package(RtAudio CONFIG REQUIRED)
 	find_package(Stb REQUIRED)
 endif()
 
